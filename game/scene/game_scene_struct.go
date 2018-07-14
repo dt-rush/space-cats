@@ -1,17 +1,10 @@
-/*
- *
- *
- *
- *
-**/
-
 package scene
 
 import (
-	"github.com/dt-rush/sameriver/engine"
-
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
+
+	"github.com/dt-rush/sameriver/engine"
 )
 
 type GameScene struct {
@@ -26,7 +19,8 @@ type GameScene struct {
 	game *engine.Game
 
 	// GameScene members
-	w *engine.World
+	w      *engine.World
+	player *engine.EntityToken
 
 	// score of player in this scene
 	score     int

@@ -11,14 +11,21 @@ func (s *GameScene) Name() string {
 }
 
 func (s *GameScene) Update(dt_ms float64) {
+	s.w.Update(dt_ms)
 }
 
 func (s *GameScene) Draw(window *sdl.Window, renderer *sdl.Renderer) {
 	// draw the score
 	renderer.Copy(s.scoreTexture, nil, &s.scoreRect)
+	// draw the player
+	playerPos := &s.w.Em.Components.Position[s.player.ID]
+	playerBox := &s.w.Em.Components.Box[s.player.ID]
+	renderer.SetDrawColor(255, 255, 255, 255)
+	s.game.Screen.FillRect(renderer, playerPos, playerBox)
 }
 
 func (s *GameScene) HandleKeyboardState(kb []uint8) {
+	s.playerHandleKeyboardState(kb)
 }
 
 func (s *GameScene) HandleKeyboardEvent(ke *sdl.KeyboardEvent) {
