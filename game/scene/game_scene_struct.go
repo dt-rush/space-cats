@@ -19,8 +19,10 @@ type GameScene struct {
 	game *engine.Game
 
 	// GameScene members
-	w      *engine.World
-	player *engine.EntityToken
+	w                   *engine.World
+	player              *engine.EntityToken
+	coins               *engine.UpdatedEntityList
+	playerCoinCollision *engine.EventChannel
 
 	// score of player in this scene
 	score     int

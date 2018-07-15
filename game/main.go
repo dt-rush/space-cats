@@ -4,7 +4,13 @@ import (
 	"fmt"
 	"github.com/dt-rush/sameriver/engine"
 	"github.com/dt-rush/space-cats/game/scene"
+	"math/rand"
+	"time"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func main() {
 	fmt.Println("space cats, motherfucker")

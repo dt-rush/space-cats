@@ -1,6 +1,7 @@
 package scene
 
 import (
+	"fmt"
 	"github.com/veandco/go-sdl2/sdl"
 
 	"github.com/dt-rush/sameriver/engine"
@@ -11,17 +12,18 @@ func (s *GameScene) Name() string {
 }
 
 func (s *GameScene) Update(dt_ms float64) {
-	s.w.Update(dt_ms)
+	s.w.Update(engine.FRAME_SLEEP_MS / 2)
 }
 
-func (s *GameScene) Draw(window *sdl.Window, renderer *sdl.Renderer) {
+func (s *GameScene) Draw(w *sdl.Window, r *sdl.Renderer) {
 	// draw the score
-	renderer.Copy(s.scoreTexture, nil, &s.scoreRect)
+	r.Copy(s.scoreTexture, nil, &s.scoreRect)
+	// draw the coins
+	for _, coin := range s.coins.GetEntities() {
+		s.SimpleEntityDraw(r, coin, sdl.Color{255, 255, 0, 255})
+	}
 	// draw the player
-	playerPos := &s.w.Em.Components.Position[s.player.ID]
-	playerBox := &s.w.Em.Components.Box[s.player.ID]
-	renderer.SetDrawColor(255, 255, 255, 255)
-	s.game.Screen.FillRect(renderer, playerPos, playerBox)
+	s.SimpleEntityDraw(r, s.player, sdl.Color{255, 255, 255, 255})
 }
 
 func (s *GameScene) HandleKeyboardState(kb []uint8) {
@@ -30,9 +32,8 @@ func (s *GameScene) HandleKeyboardState(kb []uint8) {
 
 func (s *GameScene) HandleKeyboardEvent(ke *sdl.KeyboardEvent) {
 	if ke.Type == sdl.KEYDOWN {
-		if ke.Keysym.Sym == sdl.K_s {
-			s.score++
-			s.updateScoreTexture()
+		if ke.Keysym.Sym == sdl.K_SPACE {
+			fmt.Println("you pressed space")
 		}
 	}
 }

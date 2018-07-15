@@ -22,7 +22,7 @@ func (s *GameScene) Init(game *engine.Game, config map[string]string) {
 
 	// build world and spawn entities
 	s.buildWorld()
-	s.spawnEntities()
+	s.spawnInitialEntities()
 
 	// just to play a little loading screen fun
 	time.Sleep(1 * time.Second)
