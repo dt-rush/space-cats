@@ -46,6 +46,10 @@ func (s *GameScene) NextScene() engine.Scene {
 	return nil
 }
 
+func (s *GameScene) End() {
+	fmt.Println(s.w.DumpStatsString())
+}
+
 func (s *GameScene) IsTransient() bool {
 	return true
 }
@@ -54,7 +58,7 @@ func (s *GameScene) Destroy() {
 	if !s.destroyed {
 		s.destroyed = true
 		sdl.Do(func() {
-			s.scoreFont.Close()
+			s.UIFont.Close()
 			s.scoreSurface.Free()
 			s.scoreTexture.Destroy()
 		})

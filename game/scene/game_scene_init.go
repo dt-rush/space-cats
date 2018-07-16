@@ -14,7 +14,7 @@ func (s *GameScene) Init(game *engine.Game, config map[string]string) {
 	s.game = game
 
 	// set up score font
-	if s.scoreFont, err = ttf.OpenFont("assets/fixedsys.ttf", 10); err != nil {
+	if s.UIFont, err = ttf.OpenFont("assets/test.ttf", 16); err != nil {
 		panic(err)
 	}
 	s.score = 0

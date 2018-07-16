@@ -45,6 +45,9 @@ func (s *LoadingScene) NextScene() engine.Scene {
 	return nil
 }
 
+func (s *LoadingScene) End() {
+}
+
 func (s *LoadingScene) IsTransient() bool {
 	return false
 }

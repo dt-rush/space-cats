@@ -24,9 +24,11 @@ type GameScene struct {
 	coins               *engine.UpdatedEntityList
 	playerCoinCollision *engine.EventChannel
 
+	// for writing text to the screen
+	UIFont *ttf.Font
+
 	// score of player in this scene
-	score     int
-	scoreFont *ttf.Font
+	score int
 	// surface used to build texture
 	scoreSurface *sdl.Surface
 	// texture of the above, for Renderer.Copy() in draw()

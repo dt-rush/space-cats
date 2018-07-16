@@ -10,28 +10,31 @@ import (
 )
 
 func (s *GameScene) buildWorld() {
+	// construct world object
 	s.w = engine.NewWorld(s.game.WindowSpec.Width, s.game.WindowSpec.Height)
+	// add systems
 	s.w.AddSystems(
 		engine.NewPhysicsSystem(),
 		engine.NewSpatialHashSystem(16, 16),
 		engine.NewCollisionSystem(),
 	)
+	// get updated entity list of coins
+	s.coins = s.w.Em.EntitiesWithTag("coin")
+	// add spawn random coin logic
 	s.w.AddWorldLogic("spawn-random-coin", s.spawnRandomCoinLogic)
+	// subscribe to player coin collision events
 	s.playerCoinCollision = s.w.Ev.Subscribe(
 		"player-hit-coin",
-		engine.NewPredicateEventQuery(
-			engine.COLLISION_EVENT,
-			func(e engine.Event) bool {
-				c := e.Data.(engine.CollisionData)
-				return ((c.EntityA == s.player &&
-					s.w.Em.EntityHasTag(c.EntityB, "coin")) ||
-					(c.EntityB == s.player &&
-						s.w.Em.EntityHasTag(c.EntityA, "coin")))
+		engine.CollisionEventFilter(
+			func(c engine.CollisionData) bool {
+				return c.EntityA == s.player &&
+					s.w.Em.EntityHasTag(c.EntityB, "coin")
 			}),
 	)
+	// add player coin collision logic
 	s.w.AddWorldLogic("player-collect-coin", s.playerCollectCoinLogic)
+	// activate all world logics
 	s.w.ActivateAllWorldLogics()
-	s.coins = s.w.Em.EntitiesWithTag("coin")
 }
 
 func (s *GameScene) spawnInitialEntities() {
@@ -83,7 +86,7 @@ func (s *GameScene) updateScoreTexture() {
 	// render message ("press space") surface
 	score_msg := fmt.Sprintf("%d", s.score)
 	var err error
-	s.scoreSurface, err = s.scoreFont.RenderUTF8Solid(
+	s.scoreSurface, err = s.UIFont.RenderUTF8Solid(
 		score_msg,
 		sdl.Color{255, 255, 255, 255})
 	if err != nil {
@@ -95,15 +98,15 @@ func (s *GameScene) updateScoreTexture() {
 		panic(err)
 	}
 	// set the width of the texture on screen
-	s.scoreRect = sdl.Rect{
-		10,
-		10,
-		int32(len(score_msg) * (s.game.WindowSpec.Width / 21)),
-		20}
+	w, h, err := s.UIFont.SizeUTF8(score_msg)
+	if err != nil {
+		panic(err)
+	}
+	s.scoreRect = sdl.Rect{10, 10, int32(w), int32(h)}
 }
 
 func (s *GameScene) spawnRandomCoinLogic() {
-	if rand.Float64() < 0.8 && s.w.Em.EntitiesWithTag("coin").Length() < 200 {
+	if rand.Float64() < 0.8 && s.w.Em.EntitiesWithTag("coin").Length() < 1000 {
 		s.spawnRandomCoin()
 	}
 }
@@ -133,13 +136,8 @@ func (s *GameScene) playerCollectCoinLogic() {
 		c := e.Data.(engine.CollisionData)
 		s.score += 10
 		s.updateScoreTexture()
-		if s.w.Em.EntityHasTag(c.EntityA, "coin") {
-			s.w.Em.Despawn(c.EntityA)
-		}
-		if s.w.Em.EntityHasTag(c.EntityB, "coin") {
-			s.w.Em.Despawn(c.EntityB)
-		}
-
+		coin := c.EntityB
+		s.w.Em.Despawn(coin)
 		playerBox := &s.w.Em.Components.Box[s.player.ID]
 		if playerBox.X < 50 && playerBox.Y < 50 {
 			playerBox.X += 2
