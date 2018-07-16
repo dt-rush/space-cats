@@ -13,7 +13,7 @@ func (s *GameScene) buildWorld() {
 	s.w = engine.NewWorld(s.game.WindowSpec.Width, s.game.WindowSpec.Height)
 	s.w.AddSystems(
 		engine.NewPhysicsSystem(),
-		engine.NewSpatialHashSystem(10, 10),
+		engine.NewSpatialHashSystem(16, 16),
 		engine.NewCollisionSystem(),
 	)
 	s.w.AddWorldLogic("spawn-random-coin", s.spawnRandomCoinLogic)
@@ -43,7 +43,7 @@ func (s *GameScene) spawnInitialEntities() {
 			Components: engine.ComponentSet{
 				Position: &engine.Vec2D{50, 50},
 				Velocity: &engine.Vec2D{0, 0},
-				Box:      &engine.Vec2D{10, 10},
+				Box:      &engine.Vec2D{20, 20},
 				Mass:     &mass,
 			},
 		})
@@ -103,15 +103,14 @@ func (s *GameScene) updateScoreTexture() {
 }
 
 func (s *GameScene) spawnRandomCoinLogic() {
-	if rand.Float64() < 0.008 {
+	if rand.Float64() < 0.8 && s.w.Em.EntitiesWithTag("coin").Length() < 200 {
 		s.spawnRandomCoin()
 	}
 }
 
 func (s *GameScene) spawnRandomCoin() {
-	var err error
 	mass := 1.0
-	_, err = s.w.Em.Spawn(engine.SpawnRequestData{
+	_, err := s.w.Em.Spawn(engine.SpawnRequestData{
 		Components: engine.ComponentSet{
 			Position: &engine.Vec2D{
 				rand.Float64() * float64(s.w.Width),
@@ -139,6 +138,12 @@ func (s *GameScene) playerCollectCoinLogic() {
 		}
 		if s.w.Em.EntityHasTag(c.EntityB, "coin") {
 			s.w.Em.Despawn(c.EntityB)
+		}
+
+		playerBox := &s.w.Em.Components.Box[s.player.ID]
+		if playerBox.X < 50 && playerBox.Y < 50 {
+			playerBox.X += 2
+			playerBox.Y += 2
 		}
 	}
 }

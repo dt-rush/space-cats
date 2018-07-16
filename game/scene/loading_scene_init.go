@@ -13,7 +13,7 @@ func (s *LoadingScene) Init(game *engine.Game, config map[string]string) {
 	s.game = game
 	if !s.initialized {
 		s.destroyed = false
-		s.accum_5000 = utils.CreateTimeAccumulator(5000)
+		s.accum_5000 = utils.NewTimeAccumulator(5000)
 		s.message_font, err = ttf.OpenFont("./assets/fixedsys.ttf", 10)
 		if err != nil {
 			panic(err)
