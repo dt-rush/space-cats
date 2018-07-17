@@ -7,6 +7,8 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 
 	"github.com/dt-rush/sameriver/engine"
+
+	"github.com/dt-rush/space-cats/game/systems"
 )
 
 func (s *GameScene) buildWorld() {
@@ -17,13 +19,12 @@ func (s *GameScene) buildWorld() {
 		engine.NewPhysicsSystem(),
 		engine.NewSpatialHashSystem(32, 32),
 		engine.NewCollisionSystem(),
+		systems.NewCoinDespawnAtEdgeSystem(),
 	)
 	// get updated entity list of coins
 	s.coins = s.w.EntitiesWithTag("coin")
 	// add spawn random coin logic
 	s.w.AddWorldLogic("spawn-random-coin", s.spawnRandomCoin)
-	// subscribe to player coin collision events
-
 	// add player coin collision logic
 	s.w.AddWorldLogic("player-collect-coin", s.playerCollectCoin)
 	// activate all world logics
@@ -104,8 +105,8 @@ func (s *GameScene) spawnRandomCoin() {
 			[]string{"coin"},
 			engine.ComponentSet{
 				Position: &engine.Vec2D{
-					rand.Float64() * float64(s.w.Width),
-					rand.Float64() * float64(s.w.Height),
+					rand.Float64()*float64(s.w.Width/3) + s.w.Width/3,
+					rand.Float64()*float64(s.w.Height/3) + s.w.Height/3,
 				},
 				Velocity: &engine.Vec2D{0, 0},
 				Box:      &engine.Vec2D{4, 4},
