@@ -15,7 +15,7 @@ func (s *GameScene) buildWorld() {
 	// add systems
 	s.w.AddSystems(
 		engine.NewPhysicsSystem(),
-		engine.NewSpatialHashSystem(16, 16),
+		engine.NewSpatialHashSystem(32, 32),
 		engine.NewCollisionSystem(),
 	)
 	// get updated entity list of coins
@@ -23,14 +23,7 @@ func (s *GameScene) buildWorld() {
 	// add spawn random coin logic
 	s.w.AddWorldLogic("spawn-random-coin", s.spawnRandomCoin)
 	// subscribe to player coin collision events
-	s.playerCoinCollision = s.w.Ev.Subscribe(
-		"player-hit-coin",
-		engine.CollisionEventFilter(
-			func(c engine.CollisionData) bool {
-				return c.EntityA == s.player &&
-					s.w.EntityHasTag(c.EntityB, "coin")
-			}),
-	)
+
 	// add player coin collision logic
 	s.w.AddWorldLogic("player-collect-coin", s.playerCollectCoin)
 	// activate all world logics
@@ -42,14 +35,14 @@ func (s *GameScene) spawnInitialEntities() {
 	mass := 1.0
 	s.player, err = s.w.SpawnUnique(
 		"player",
-		engine.SpawnRequestData{
-			Components: engine.ComponentSet{
-				Position: &engine.Vec2D{50, 50},
-				Velocity: &engine.Vec2D{0, 0},
-				Box:      &engine.Vec2D{20, 20},
-				Mass:     &mass,
-			},
-		})
+		[]string{},
+		engine.ComponentSet{
+			Position: &engine.Vec2D{50, 50},
+			Velocity: &engine.Vec2D{0, 0},
+			Box:      &engine.Vec2D{2, 2},
+			Mass:     &mass,
+		},
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -58,14 +51,14 @@ func (s *GameScene) spawnInitialEntities() {
 func (s *GameScene) SimpleEntityDraw(
 	r *sdl.Renderer, e *engine.Entity, c sdl.Color) {
 
-	pos := &s.w.Components.Position[e.ID]
-	box := &s.w.Components.Box[e.ID]
+	box := e.GetBox()
+	pos := e.GetPosition().ShiftedCenterToBottomLeft(box)
 	r.SetDrawColor(c.R, c.G, c.B, c.A)
-	s.game.Screen.FillRect(r, pos, box)
+	s.game.Screen.FillRect(r, &pos, box)
 }
 
 func (s *GameScene) playerHandleKeyboardState(kb []uint8) {
-	v := &s.w.Components.Velocity[s.player.ID]
+	v := s.player.GetVelocity()
 	// get player v1
 	v.X = 0.2 * float64(
 		int8(kb[sdl.SCANCODE_D]|kb[sdl.SCANCODE_RIGHT])-
@@ -76,7 +69,6 @@ func (s *GameScene) playerHandleKeyboardState(kb []uint8) {
 }
 
 func (s *GameScene) updateScoreTexture() {
-
 	if s.scoreSurface != nil {
 		s.scoreSurface.Free()
 	}
@@ -108,8 +100,9 @@ func (s *GameScene) updateScoreTexture() {
 func (s *GameScene) spawnRandomCoin() {
 	if rand.Float64() < 0.8 && s.w.EntitiesWithTag("coin").Length() < 1000 {
 		mass := 1.0
-		c, err := s.w.Spawn(engine.SpawnRequestData{
-			Components: engine.ComponentSet{
+		c, err := s.w.Spawn(
+			[]string{"coin"},
+			engine.ComponentSet{
 				Position: &engine.Vec2D{
 					rand.Float64() * float64(s.w.Width),
 					rand.Float64() * float64(s.w.Height),
@@ -118,8 +111,7 @@ func (s *GameScene) spawnRandomCoin() {
 				Box:      &engine.Vec2D{4, 4},
 				Mass:     &mass,
 			},
-			Tags: []string{"coin"},
-		})
+		)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -131,25 +123,44 @@ func (s *GameScene) spawnRandomCoin() {
 
 func (s *GameScene) coinLogic(c *engine.Entity) func() {
 	return func() {
-		pos := &s.w.Components.Position[c.ID]
-		vel := &s.w.Components.Velocity[c.ID]
-		dist := pos.Sub(s.w.Components.Position[s.player.ID])
-		*vel = dist.Unit().Scale(0.1 * (1.0 - dist.Magnitude()/float64(s.w.Width)))
+		dist := c.GetPosition().Sub(*s.player.GetPosition())
+		*c.GetVelocity() = dist.Unit().Scale(0.1 * (1.0 - dist.Magnitude()/float64(s.w.Width)))
 	}
 }
 
 func (s *GameScene) playerCollectCoin() {
+	if s.playerCoinCollision == nil {
+		s.subscribeToPlayerCoinCollision()
+	}
 	for len(s.playerCoinCollision.C) > 0 {
 		e := <-s.playerCoinCollision.C
-		c := e.Data.(engine.CollisionData)
-		s.score += 10
-		s.updateScoreTexture()
-		coin := c.EntityB
+		coin := e.Data.(engine.CollisionData).EntityB
 		s.w.Despawn(coin)
-		playerBox := &s.w.Components.Box[s.player.ID]
-		if playerBox.X < 50 && playerBox.Y < 50 {
-			playerBox.X += 2
-			playerBox.Y += 2
-		}
+		s.augmentScore(10)
+		s.growPlayer(0.5)
+	}
+}
+
+func (s *GameScene) subscribeToPlayerCoinCollision() {
+	s.playerCoinCollision = s.w.Events.Subscribe(
+		"player-hit-coin",
+		engine.CollisionEventFilter(
+			func(c engine.CollisionData) bool {
+				return c.EntityA == s.player &&
+					s.w.EntityHasTag(c.EntityB, "coin")
+			}),
+	)
+}
+
+func (s *GameScene) augmentScore(x int) {
+	s.score += x
+	s.updateScoreTexture()
+}
+
+func (s *GameScene) growPlayer(increase float64) {
+	playerBox := s.player.GetBox()
+	if playerBox.X < 50 && playerBox.Y < 50 {
+		playerBox.X += increase
+		playerBox.Y += increase
 	}
 }
