@@ -20,7 +20,7 @@ type GameScene struct {
 
 	// GameScene members
 	w                   *engine.World
-	player              *engine.EntityToken
+	player              *engine.Entity
 	coins               *engine.UpdatedEntityList
 	playerCoinCollision *engine.EventChannel
 
