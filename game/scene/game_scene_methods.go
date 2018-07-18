@@ -3,6 +3,7 @@ package scene
 import (
 	"fmt"
 	"math/rand"
+	"time"
 
 	"github.com/veandco/go-sdl2/sdl"
 
@@ -18,7 +19,7 @@ func (s *GameScene) buildWorld() {
 	s.w.AddSystems(
 		engine.NewPhysicsSystem(),
 		engine.NewSpatialHashSystem(32, 32),
-		engine.NewCollisionSystem(),
+		engine.NewCollisionSystem(100*time.Millisecond),
 		systems.NewCoinDespawnAtEdgeSystem(),
 	)
 	// get updated entity list of coins
@@ -135,7 +136,7 @@ func (s *GameScene) playerCollectCoin() {
 	}
 	for len(s.playerCoinCollision.C) > 0 {
 		e := <-s.playerCoinCollision.C
-		coin := e.Data.(engine.CollisionData).EntityB
+		coin := e.Data.(engine.CollisionData).Other
 		s.w.Despawn(coin)
 		s.augmentScore(10)
 		s.growPlayer(0.5)
@@ -147,8 +148,8 @@ func (s *GameScene) subscribeToPlayerCoinCollision() {
 		"player-hit-coin",
 		engine.CollisionEventFilter(
 			func(c engine.CollisionData) bool {
-				return c.EntityA == s.player &&
-					s.w.EntityHasTag(c.EntityB, "coin")
+				return c.This == s.player &&
+					c.Other.GetTagList().Has("coin")
 			}),
 	)
 }
