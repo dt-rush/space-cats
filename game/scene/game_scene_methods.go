@@ -15,6 +15,15 @@ import (
 func (s *GameScene) buildWorld() {
 	// construct world object
 	s.w = engine.NewWorld(s.game.WindowSpec.Width, s.game.WindowSpec.Height)
+	// register components must always be called before AddSystems()
+	// since systems might want to create and listen on component bitarray
+	// filters
+	s.w.RegisterComponents([]string{
+		"Vec2D,Position",
+		"Vec2D,Velocity",
+		"Vec2D,Box",
+		"Float64,Mass",
+	})
 	// add systems
 	s.w.AddSystems(
 		engine.NewPhysicsSystem(),
@@ -38,12 +47,12 @@ func (s *GameScene) spawnInitialEntities() {
 	s.player, err = s.w.SpawnUnique(
 		"player",
 		[]string{},
-		engine.ComponentSet{
-			Position: &engine.Vec2D{50, 50},
-			Velocity: &engine.Vec2D{0, 0},
-			Box:      &engine.Vec2D{2, 2},
-			Mass:     &mass,
-		},
+		engine.MakeComponentSet(map[string]interface{}{
+			"Vec2D,Position": &engine.Vec2D{50, 50},
+			"Vec2D,Velocity": &engine.Vec2D{0, 0},
+			"Vec2D,Box":      &engine.Vec2D{2, 2},
+			"Float64,Mass":   &mass,
+		}),
 	)
 	if err != nil {
 		panic(err)
@@ -53,14 +62,14 @@ func (s *GameScene) spawnInitialEntities() {
 func (s *GameScene) SimpleEntityDraw(
 	r *sdl.Renderer, e *engine.Entity, c sdl.Color) {
 
-	box := e.GetBox()
-	pos := e.GetPosition().ShiftedCenterToBottomLeft(box)
+	box := e.GetVec2D("Box")
+	pos := e.GetVec2D("Position").ShiftedCenterToBottomLeft(box)
 	r.SetDrawColor(c.R, c.G, c.B, c.A)
 	s.game.Screen.FillRect(r, &pos, box)
 }
 
 func (s *GameScene) playerHandleKeyboardState(kb []uint8) {
-	v := s.player.GetVelocity()
+	v := s.player.GetVec2D("Velocity")
 	// get player v1
 	v.X = 0.2 * float64(
 		int8(kb[sdl.SCANCODE_D]|kb[sdl.SCANCODE_RIGHT])-
@@ -125,8 +134,8 @@ func (s *GameScene) spawnRandomCoin() {
 
 func (s *GameScene) coinLogic(c *engine.Entity) func() {
 	return func() {
-		dist := c.GetPosition().Sub(*s.player.GetPosition())
-		*c.GetVelocity() = dist.Unit().Scale(0.1 * (1.0 - dist.Magnitude()/float64(s.w.Width)))
+		dist := c.GetVec2D("Position").Sub(*s.player.GetVec2D("Position"))
+		*c.GetVec2D("Velocity") = dist.Unit().Scale(0.1 * (1.0 - dist.Magnitude()/float64(s.w.Width)))
 	}
 }
 
@@ -146,10 +155,12 @@ func (s *GameScene) playerCollectCoin() {
 func (s *GameScene) subscribeToPlayerCoinCollision() {
 	s.playerCoinCollision = s.w.Events.Subscribe(
 		"player-hit-coin",
-		engine.CollisionEventFilter(
-			func(c engine.CollisionData) bool {
+		engine.PredicateEventFilter(
+			"collision",
+			func(e engine.Event) bool {
+				c := e.Data.(engine.CollisionData)
 				return c.This == s.player &&
-					c.Other.GetTagList().Has("coin")
+					c.Other.GetTagList("Generic").Has("coin")
 			}),
 	)
 }

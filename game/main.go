@@ -17,8 +17,8 @@ func main() {
 	engine.RunGame(engine.GameInitSpec{
 		WindowSpec: engine.WindowSpec{
 			Title:      "space cats",
-			Width:      400,
-			Height:     300,
+			Width:      800,
+			Height:     800,
 			Fullscreen: false},
 		LoadingScene: &scene.LoadingScene{},
 		FirstScene:   &scene.GameScene{},
