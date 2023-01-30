@@ -127,7 +127,7 @@ func (s *GameScene) spawnRandomCoin() {
 			fmt.Println(err)
 			return
 		}
-		s.w.AddEntityLogic(c, s.coinLogic(c))
+		s.w.SetPrimaryEntityLogic(c, s.coinLogic(c))
 		s.w.ActivateEntityLogic(c)
 	}
 }
@@ -160,7 +160,7 @@ func (s *GameScene) subscribeToPlayerCoinCollision() {
 			func(e engine.Event) bool {
 				c := e.Data.(engine.CollisionData)
 				return c.This == s.player &&
-					c.Other.GetTagList("Generic").Has("coin")
+					c.Other.GetTagList("GenericTags").Has("coin")
 			}),
 	)
 }
@@ -171,7 +171,7 @@ func (s *GameScene) augmentScore(x int) {
 }
 
 func (s *GameScene) growPlayer(increase float64) {
-	playerBox := s.player.GetBox()
+	playerBox := s.player.GetVec2D("Box")
 	if playerBox.X < 50 && playerBox.Y < 50 {
 		playerBox.X += increase
 		playerBox.Y += increase

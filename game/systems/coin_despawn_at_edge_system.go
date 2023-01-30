@@ -24,9 +24,9 @@ func (s *CoinDespawnAtEdgeSystem) Update() {
 		for x := 0; x < s.sh.GridX; x++ {
 			cell := s.sh.Table[x][y]
 			for _, e := range cell {
-				if e.GetTagList().Has("coin") {
-					pos := e.GetPosition()
-					box := e.GetBox()
+				if e.GetTagList("GenericTags").Has("coin") {
+					pos := e.GetVec2D("Position")
+					box := e.GetVec2D("Box")
 					if pos.Y < box.Y || (s.w.Height-pos.Y) < box.Y {
 						s.w.Despawn(e)
 					}
@@ -38,9 +38,9 @@ func (s *CoinDespawnAtEdgeSystem) Update() {
 		for y := 0; y < s.sh.GridY; y++ {
 			cell := s.sh.Table[x][y]
 			for _, e := range cell {
-				if e.GetTagList().Has("coin") {
-					pos := e.GetPosition()
-					box := e.GetBox()
+				if e.GetTagList("GenericTags").Has("coin") {
+					pos := e.GetVec2D("Position")
+					box := e.GetVec2D("Box")
 					if pos.X < box.X || (s.w.Width-pos.X) < box.X {
 						s.w.Despawn(e)
 					}
@@ -48,4 +48,8 @@ func (s *CoinDespawnAtEdgeSystem) Update() {
 			}
 		}
 	}
+}
+
+func (s *CoinDespawnAtEdgeSystem) GetComponentDeps() []string {
+	return []string{"TagList,GenericTags", "Vec2D,Position", "Vec2D,Box"}
 }
