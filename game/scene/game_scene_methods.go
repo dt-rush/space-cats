@@ -48,10 +48,10 @@ func (s *GameScene) spawnInitialEntities() {
 		"player",
 		[]string{},
 		engine.MakeComponentSet(map[string]interface{}{
-			"Vec2D,Position": &engine.Vec2D{50, 50},
-			"Vec2D,Velocity": &engine.Vec2D{0, 0},
-			"Vec2D,Box":      &engine.Vec2D{2, 2},
-			"Float64,Mass":   &mass,
+			"Vec2D,Position": engine.Vec2D{50, 50},
+			"Vec2D,Velocity": engine.Vec2D{0, 0},
+			"Vec2D,Box":      engine.Vec2D{2, 2},
+			"Float64,Mass":   mass,
 		}),
 	)
 	if err != nil {
@@ -113,15 +113,15 @@ func (s *GameScene) spawnRandomCoin() {
 		mass := 1.0
 		c, err := s.w.Spawn(
 			[]string{"coin"},
-			engine.ComponentSet{
-				Position: &engine.Vec2D{
+			engine.MakeComponentSet(map[string]interface{}{
+				"Vec2D,Position": engine.Vec2D{
 					rand.Float64()*float64(s.w.Width/3) + s.w.Width/3,
 					rand.Float64()*float64(s.w.Height/3) + s.w.Height/3,
 				},
-				Velocity: &engine.Vec2D{0, 0},
-				Box:      &engine.Vec2D{4, 4},
-				Mass:     &mass,
-			},
+				"Vec2D,Velocity": engine.Vec2D{0, 0},
+				"Vec2D,Box":      engine.Vec2D{4, 4},
+				"Float64,Mass":   mass,
+			}),
 		)
 		if err != nil {
 			fmt.Println(err)
