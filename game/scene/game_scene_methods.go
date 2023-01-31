@@ -37,8 +37,6 @@ func (s *GameScene) buildWorld() {
 	s.w.AddWorldLogic("spawn-random-coin", s.spawnRandomCoin)
 	// add player coin collision logic
 	s.w.AddWorldLogic("player-collect-coin", s.playerCollectCoin)
-	// activate all world logics
-	s.w.ActivateAllWorldLogics()
 }
 
 func (s *GameScene) spawnInitialEntities() {
@@ -127,8 +125,7 @@ func (s *GameScene) spawnRandomCoin() {
 			fmt.Println(err)
 			return
 		}
-		s.w.SetPrimaryEntityLogic(c, s.coinLogic(c))
-		s.w.ActivateEntityLogic(c)
+		c.AddLogic("coin-logic", s.coinLogic(c))
 	}
 }
 
