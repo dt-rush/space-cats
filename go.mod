@@ -3,7 +3,7 @@ module github.com/dt-rush/space-cats
 go 1.19
 
 require (
-	github.com/dt-rush/sameriver/v2 v2.0.3
+	github.com/dt-rush/sameriver/v2 v2.1.3
 	github.com/veandco/go-sdl2 v0.4.30
 )
 

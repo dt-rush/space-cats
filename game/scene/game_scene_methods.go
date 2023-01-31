@@ -8,7 +8,6 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 
 	"github.com/dt-rush/sameriver/v2"
-	"github.com/dt-rush/sameriver/v2/utils"
 
 	"github.com/dt-rush/space-cats/game/systems"
 )
@@ -35,7 +34,8 @@ func (s *GameScene) buildWorld() {
 	// get updated entity list of coins
 	s.coins = s.w.EntitiesWithTag("coin")
 	// add spawn random coin logic
-	s.w.AddWorldLogic("spawn-random-coin", s.spawnRandomCoin())
+	const COINS_PER_SEC = 50
+	s.w.AddWorldLogicWithSchedule("spawn-random-coin", s.spawnRandomCoin, 1000/COINS_PER_SEC)
 	// add player coin collision logic
 	s.w.AddWorldLogic("player-collect-coin", s.playerCollectCoin)
 }
@@ -107,30 +107,26 @@ func (s *GameScene) updateScoreTexture() {
 	s.scoreRect = sdl.Rect{10, 10, int32(w), int32(h)}
 }
 
-func (s *GameScene) spawnRandomCoin() func(dt_ms float64) {
-	const COINS_PER_SEC = 50
-	spawn_accum := utils.NewTimeAccumulator(1000 / COINS_PER_SEC)
-	return func(dt_ms float64) {
-		if spawn_accum.Tick(dt_ms) && s.w.EntitiesWithTag("coin").Length() < 1000 {
-			mass := 1.0
-			c, err := s.w.Spawn(
-				[]string{"coin"},
-				sameriver.MakeComponentSet(map[string]interface{}{
-					"Vec2D,Position": sameriver.Vec2D{
-						rand.Float64()*float64(s.w.Width/3) + s.w.Width/3,
-						rand.Float64()*float64(s.w.Height/3) + s.w.Height/3,
-					},
-					"Vec2D,Velocity": sameriver.Vec2D{0, 0},
-					"Vec2D,Box":      sameriver.Vec2D{4, 4},
-					"Float64,Mass":   mass,
-				}),
-			)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			c.AddLogic("coin-logic", s.coinLogic(c))
+func (s *GameScene) spawnRandomCoin(dt_ms float64) {
+	if s.w.EntitiesWithTag("coin").Length() < 1000 {
+		mass := 1.0
+		c, err := s.w.Spawn(
+			[]string{"coin"},
+			sameriver.MakeComponentSet(map[string]interface{}{
+				"Vec2D,Position": sameriver.Vec2D{
+					rand.Float64()*float64(s.w.Width/3) + s.w.Width/3,
+					rand.Float64()*float64(s.w.Height/3) + s.w.Height/3,
+				},
+				"Vec2D,Velocity": sameriver.Vec2D{0, 0},
+				"Vec2D,Box":      sameriver.Vec2D{4, 4},
+				"Float64,Mass":   mass,
+			}),
+		)
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
+		c.AddLogic("coin-logic", s.coinLogic(c))
 	}
 }
 
