@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/dt-rush/sameriver/engine"
+	"github.com/dt-rush/sameriver/v2"
 	"github.com/dt-rush/space-cats/game/scene"
 	"math/rand"
 	"time"
@@ -14,8 +14,8 @@ func init() {
 
 func main() {
 	fmt.Println("space cats, motherfucker")
-	engine.RunGame(engine.GameInitSpec{
-		WindowSpec: engine.WindowSpec{
+	sameriver.RunGame(sameriver.GameInitSpec{
+		WindowSpec: sameriver.WindowSpec{
 			Title:      "space cats",
 			Width:      800,
 			Height:     800,

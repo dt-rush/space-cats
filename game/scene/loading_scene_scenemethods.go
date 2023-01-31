@@ -5,14 +5,14 @@ import (
 
 	"github.com/veandco/go-sdl2/sdl"
 
-	"github.com/dt-rush/sameriver/engine"
+	"github.com/dt-rush/sameriver/v2"
 )
 
 func (s *LoadingScene) Name() string {
 	return "loading-scene"
 }
 
-func (s *LoadingScene) Update(dt_ms float64) {
+func (s *LoadingScene) Update(dt_ms float64, allowance_ms float64) {
 	s.accum_5000.Tick(dt_ms)
 }
 
@@ -41,7 +41,7 @@ func (s *LoadingScene) IsDone() bool {
 	return false
 }
 
-func (s *LoadingScene) NextScene() engine.Scene {
+func (s *LoadingScene) NextScene() sameriver.Scene {
 	return nil
 }
 

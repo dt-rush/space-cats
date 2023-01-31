@@ -1,25 +1,25 @@
 package systems
 
 import (
-	"github.com/dt-rush/sameriver/engine"
+	"github.com/dt-rush/sameriver/v2"
 )
 
 type CoinDespawnAtEdgeSystem struct {
-	w     *engine.World
-	sh    *engine.SpatialHashSystem `sameriver-system-dependency:"-"`
-	coins *engine.UpdatedEntityList
+	w     *sameriver.World
+	sh    *sameriver.SpatialHashSystem `sameriver-system-dependency:"-"`
+	coins *sameriver.UpdatedEntityList
 }
 
 func NewCoinDespawnAtEdgeSystem() *CoinDespawnAtEdgeSystem {
 	return &CoinDespawnAtEdgeSystem{}
 }
 
-func (s *CoinDespawnAtEdgeSystem) LinkWorld(w *engine.World) {
+func (s *CoinDespawnAtEdgeSystem) LinkWorld(w *sameriver.World) {
 	s.w = w
 	s.coins = s.w.EntitiesWithTag("coin")
 }
 
-func (s *CoinDespawnAtEdgeSystem) Update() {
+func (s *CoinDespawnAtEdgeSystem) Update(dt_ms float64) {
 	for y := 0; y <= s.sh.GridY-1; y += (s.sh.GridY - 1) {
 		for x := 0; x < s.sh.GridX; x++ {
 			cell := s.sh.Table[x][y]

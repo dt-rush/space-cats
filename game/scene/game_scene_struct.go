@@ -4,7 +4,7 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 
-	"github.com/dt-rush/sameriver/engine"
+	"github.com/dt-rush/sameriver/v2"
 )
 
 type GameScene struct {
@@ -16,13 +16,13 @@ type GameScene struct {
 	// used to make destroy() idempotent
 	destroyed bool
 	// the game
-	game *engine.Game
+	game *sameriver.Game
 
 	// GameScene members
-	w                   *engine.World
-	player              *engine.Entity
-	coins               *engine.UpdatedEntityList
-	playerCoinCollision *engine.EventChannel
+	w                   *sameriver.World
+	player              *sameriver.Entity
+	coins               *sameriver.UpdatedEntityList
+	playerCoinCollision *sameriver.EventChannel
 
 	// for writing text to the screen
 	UIFont *ttf.Font

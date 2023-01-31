@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"github.com/veandco/go-sdl2/sdl"
 
-	"github.com/dt-rush/sameriver/engine"
+	"github.com/dt-rush/sameriver/v2"
 )
 
 func (s *GameScene) Name() string {
 	return "game-scene"
 }
 
-func (s *GameScene) Update(dt_ms float64) {
-	s.w.Update(engine.FRAME_SLEEP_MS / 2)
+func (s *GameScene) Update(dt_ms float64, allowance_ms float64) {
+	s.w.Update(allowance_ms)
 }
 
 func (s *GameScene) Draw(w *sdl.Window, r *sdl.Renderer) {
@@ -42,7 +42,7 @@ func (s *GameScene) IsDone() bool {
 	return s.ended
 }
 
-func (s *GameScene) NextScene() engine.Scene {
+func (s *GameScene) NextScene() sameriver.Scene {
 	return nil
 }
 

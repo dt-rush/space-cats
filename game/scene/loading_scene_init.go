@@ -1,14 +1,14 @@
 package scene
 
 import (
-	"github.com/dt-rush/sameriver/engine"
-	"github.com/dt-rush/sameriver/engine/utils"
+	"github.com/dt-rush/sameriver/v2"
+	"github.com/dt-rush/sameriver/v2/utils"
 
 	"github.com/veandco/go-sdl2/sdl"
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-func (s *LoadingScene) Init(game *engine.Game, config map[string]string) {
+func (s *LoadingScene) Init(game *sameriver.Game, config map[string]string) {
 	var err error
 	s.game = game
 	if !s.initialized {

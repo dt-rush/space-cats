@@ -3,11 +3,11 @@ package scene
 import (
 	"time"
 
-	"github.com/dt-rush/sameriver/engine"
+	"github.com/dt-rush/sameriver/v2"
 	"github.com/veandco/go-sdl2/ttf"
 )
 
-func (s *GameScene) Init(game *engine.Game, config map[string]string) {
+func (s *GameScene) Init(game *sameriver.Game, config map[string]string) {
 	var err error
 	// set scene "abstract base class" members
 	s.destroyed = false
