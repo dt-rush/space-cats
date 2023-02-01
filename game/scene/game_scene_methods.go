@@ -31,6 +31,7 @@ func (s *GameScene) buildWorld() {
 		sameriver.NewCollisionSystem(100*time.Millisecond),
 		systems.NewCoinDespawnAtEdgeSystem(),
 	)
+	s.w.SetSystemSchedule("CollisionSystem", 16)
 	// get updated entity list of coins
 	s.coins = s.w.EntitiesWithTag("coin")
 	// add spawn random coin logic
